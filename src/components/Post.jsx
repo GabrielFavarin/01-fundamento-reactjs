@@ -26,7 +26,7 @@ export function Post({author, publishedAt, content}) {
         addSuffix:true,
     })
 
-    function handleCreateNewComent(){
+    function handleCreateNewComment(){
         event.preventDefault()
         
         setComments([...comments, newCommentText]);
@@ -34,8 +34,25 @@ export function Post({author, publishedAt, content}) {
     }
 
     function handleNewCommentChange(){
+        event.target.setCustomValidity('')
         setNewCommentText(event.target.value)
     }
+
+    function deleteComment(commentToDelete){
+        //imutabilidade --> as variáveis não sofrem mutação, nós criamos um novo valor (um novo espaço na memória)
+
+        const commentsWithoutDeletedOne = comments.filter(comment => {
+            return comment != commentToDelete
+        })
+
+        setComments(commentsWithoutDeletedOne);
+    }
+
+    function handleNewCommentInvalid(){
+        event.target.setCustomValidity('Esse campo é obrigatório')
+    }
+
+    const isNewCommentEmpty = newCommentText.length === 0;
 
 
     return (
@@ -64,7 +81,7 @@ export function Post({author, publishedAt, content}) {
                })}
             </div>
 
-            <form onSubmit={handleCreateNewComent} className={styles.commentForm}>
+            <form onSubmit={handleCreateNewComment} className={styles.commentForm}>
                 <strong>Deixei seu feedback</strong>
 
                 <textarea
@@ -72,15 +89,23 @@ export function Post({author, publishedAt, content}) {
                     placeholder="Deixe seu comentário"
                     value={newCommentText}
                     onChange={handleNewCommentChange}
+                    onInvalid={handleNewCommentInvalid}
+                    required
                 />
 
-                <footer><button type='submit'>Publicar</button></footer>
+                <footer><button type='submit' disabled={isNewCommentEmpty}>Publicar</button></footer>
             </form>
 
 
             <div className={styles.commentList}>
                 {comments.map(comment => {
-                    return <Comment key={comment} content={comment} />
+                    return (
+                    <Comment 
+                        key={comment} 
+                        content={comment} 
+                        deleteComment={deleteComment} 
+                        />
+                    )
                 })}
             </div>
 
